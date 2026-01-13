@@ -1,0 +1,2123 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Voice Attendance System</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <style>
+        /* Design System CSS */
+        :root {
+            /* Primitive Color Tokens */
+            --color-white: rgba(255, 255, 255, 1);
+            --color-black: rgba(0, 0, 0, 1);
+            --color-cream-50: rgba(252, 252, 249, 1);
+            --color-cream-100: rgba(255, 255, 253, 1);
+            --color-gray-200: rgba(245, 245, 245, 1);
+            --color-gray-300: rgba(167, 169, 169, 1);
+            --color-gray-400: rgba(119, 124, 124, 1);
+            --color-slate-500: rgba(98, 108, 113, 1);
+            --color-brown-600: rgba(94, 82, 64, 1);
+            --color-charcoal-700: rgba(31, 33, 33, 1);
+            --color-charcoal-800: rgba(38, 40, 40, 1);
+            --color-slate-900: rgba(19, 52, 59, 1);
+            --color-teal-300: rgba(50, 184, 198, 1);
+            --color-teal-400: rgba(45, 166, 178, 1);
+            --color-teal-500: rgba(33, 128, 141, 1);
+            --color-teal-600: rgba(29, 116, 128, 1);
+            --color-teal-700: rgba(26, 104, 115, 1);
+            --color-teal-800: rgba(41, 150, 161, 1);
+            --color-red-400: rgba(255, 84, 89, 1);
+            --color-red-500: rgba(192, 21, 47, 1);
+            --color-orange-400: rgba(230, 129, 97, 1);
+            --color-orange-500: rgba(168, 75, 47, 1);
+
+            /* RGB versions for opacity control */
+            --color-brown-600-rgb: 94, 82, 64;
+            --color-teal-500-rgb: 33, 128, 141;
+            --color-slate-900-rgb: 19, 52, 59;
+            --color-slate-500-rgb: 98, 108, 113;
+            --color-red-500-rgb: 192, 21, 47;
+            --color-red-400-rgb: 255, 84, 89;
+            --color-orange-500-rgb: 168, 75, 47;
+            --color-orange-400-rgb: 230, 129, 97;
+
+            /* Background color tokens (Light Mode) */
+            --color-bg-1: rgba(59, 130, 246, 0.08);
+            --color-bg-2: rgba(245, 158, 11, 0.08);
+            --color-bg-3: rgba(34, 197, 94, 0.08);
+            --color-bg-4: rgba(239, 68, 68, 0.08);
+            --color-bg-5: rgba(147, 51, 234, 0.08);
+            --color-bg-6: rgba(249, 115, 22, 0.08);
+            --color-bg-7: rgba(236, 72, 153, 0.08);
+            --color-bg-8: rgba(6, 182, 212, 0.08);
+
+            /* Semantic Color Tokens */
+            --color-background: var(--color-cream-50);
+            --color-surface: var(--color-cream-100);
+            --color-text: var(--color-slate-900);
+            --color-text-secondary: var(--color-slate-500);
+            --color-primary: var(--color-teal-500);
+            --color-primary-hover: var(--color-teal-600);
+            --color-primary-active: var(--color-teal-700);
+            --color-secondary: rgba(var(--color-brown-600-rgb), 0.12);
+            --color-secondary-hover: rgba(var(--color-brown-600-rgb), 0.2);
+            --color-secondary-active: rgba(var(--color-brown-600-rgb), 0.25);
+            --color-border: rgba(var(--color-brown-600-rgb), 0.2);
+            --color-btn-primary-text: var(--color-cream-50);
+            --color-card-border: rgba(var(--color-brown-600-rgb), 0.12);
+            --color-card-border-inner: rgba(var(--color-brown-600-rgb), 0.12);
+            --color-error: var(--color-red-500);
+            --color-success: var(--color-teal-500);
+            --color-warning: var(--color-orange-500);
+            --color-info: var(--color-slate-500);
+            --color-focus-ring: rgba(var(--color-teal-500-rgb), 0.4);
+            --color-select-caret: rgba(var(--color-slate-900-rgb), 0.8);
+
+            /* Common style patterns */
+            --focus-ring: 0 0 0 3px var(--color-focus-ring);
+            --focus-outline: 2px solid var(--color-primary);
+            --status-bg-opacity: 0.15;
+            --status-border-opacity: 0.25;
+            --select-caret-light: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%23134252' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+            --select-caret-dark: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%23f5f5f5' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+
+            /* RGB versions for opacity control */
+            --color-success-rgb: 33, 128, 141;
+            --color-error-rgb: 192, 21, 47;
+            --color-warning-rgb: 168, 75, 47;
+            --color-info-rgb: 98, 108, 113;
+
+            /* Typography */
+            --font-family-base: "FKGroteskNeue", "Geist", "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            --font-family-mono: "Berkeley Mono", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+            --font-size-xs: 11px;
+            --font-size-sm: 12px;
+            --font-size-base: 14px;
+            --font-size-md: 14px;
+            --font-size-lg: 16px;
+            --font-size-xl: 18px;
+            --font-size-2xl: 20px;
+            --font-size-3xl: 24px;
+            --font-size-4xl: 30px;
+            --font-weight-normal: 400;
+            --font-weight-medium: 500;
+            --font-weight-semibold: 550;
+            --font-weight-bold: 600;
+            --line-height-tight: 1.2;
+            --line-height-normal: 1.5;
+            --letter-spacing-tight: -0.01em;
+
+            /* Spacing */
+            --space-0: 0;
+            --space-1: 1px;
+            --space-2: 2px;
+            --space-4: 4px;
+            --space-6: 6px;
+            --space-8: 8px;
+            --space-10: 10px;
+            --space-12: 12px;
+            --space-16: 16px;
+            --space-20: 20px;
+            --space-24: 24px;
+            --space-32: 32px;
+
+            /* Border Radius */
+            --radius-sm: 6px;
+            --radius-base: 8px;
+            --radius-md: 10px;
+            --radius-lg: 12px;
+            --radius-full: 9999px;
+
+            /* Shadows */
+            --shadow-xs: 0 1px 2px rgba(0, 0, 0, 0.02);
+            --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.04), 0 1px 2px rgba(0, 0, 0, 0.02);
+            --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.04), 0 2px 4px -1px rgba(0, 0, 0, 0.02);
+            --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.04), 0 4px 6px -2px rgba(0, 0, 0, 0.02);
+            --shadow-inset-sm: inset 0 1px 0 rgba(255, 255, 255, 0.15), inset 0 -1px 0 rgba(0, 0, 0, 0.03);
+
+            /* Animation */
+            --duration-fast: 150ms;
+            --duration-normal: 250ms;
+            --ease-standard: cubic-bezier(0.16, 1, 0.3, 1);
+
+            /* Layout */
+            --container-sm: 640px;
+            --container-md: 768px;
+            --container-lg: 1024px;
+            --container-xl: 1280px;
+        }
+
+        /* Dark mode colors */
+        @media (prefers-color-scheme: dark) {
+            :root {
+                --color-gray-400-rgb: 119, 124, 124;
+                --color-teal-300-rgb: 50, 184, 198;
+                --color-gray-300-rgb: 167, 169, 169;
+                --color-gray-200-rgb: 245, 245, 245;
+
+                /* Background color tokens (Dark Mode) */
+                --color-bg-1: rgba(29, 78, 216, 0.15);
+                --color-bg-2: rgba(180, 83, 9, 0.15);
+                --color-bg-3: rgba(21, 128, 61, 0.15);
+                --color-bg-4: rgba(185, 28, 28, 0.15);
+                --color-bg-5: rgba(107, 33, 168, 0.15);
+                --color-bg-6: rgba(194, 65, 12, 0.15);
+                --color-bg-7: rgba(190, 24, 93, 0.15);
+                --color-bg-8: rgba(8, 145, 178, 0.15);
+
+                /* Semantic Color Tokens (Dark Mode) */
+                --color-background: var(--color-charcoal-700);
+                --color-surface: var(--color-charcoal-800);
+                --color-text: var(--color-gray-200);
+                --color-text-secondary: rgba(var(--color-gray-300-rgb), 0.7);
+                --color-primary: var(--color-teal-300);
+                --color-primary-hover: var(--color-teal-400);
+                --color-primary-active: var(--color-teal-800);
+                --color-secondary: rgba(var(--color-gray-400-rgb), 0.15);
+                --color-secondary-hover: rgba(var(--color-gray-400-rgb), 0.25);
+                --color-secondary-active: rgba(var(--color-gray-400-rgb), 0.3);
+                --color-border: rgba(var(--color-gray-400-rgb), 0.3);
+                --color-error: var(--color-red-400);
+                --color-success: var(--color-teal-300);
+                --color-warning: var(--color-orange-400);
+                --color-info: var(--color-gray-300);
+                --color-focus-ring: rgba(var(--color-teal-300-rgb), 0.4);
+                --color-btn-primary-text: var(--color-slate-900);
+                --color-card-border: rgba(var(--color-gray-400-rgb), 0.2);
+                --color-card-border-inner: rgba(var(--color-gray-400-rgb), 0.15);
+                --shadow-inset-sm: inset 0 1px 0 rgba(255, 255, 255, 0.1), inset 0 -1px 0 rgba(0, 0, 0, 0.15);
+                --color-border-secondary: rgba(var(--color-gray-400-rgb), 0.2);
+                --color-select-caret: rgba(var(--color-gray-200-rgb), 0.8);
+
+                --color-success-rgb: var(--color-teal-300-rgb);
+                --color-error-rgb: var(--color-red-400-rgb);
+                --color-warning-rgb: var(--color-orange-400-rgb);
+                --color-info-rgb: var(--color-gray-300-rgb);
+            }
+        }
+
+        /* Base styles */
+        html {
+            font-size: var(--font-size-base);
+            font-family: var(--font-family-base);
+            line-height: var(--line-height-normal);
+            color: var(--color-text);
+            background-color: var(--color-background);
+            -webkit-font-smoothing: antialiased;
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            padding: 0;
+        }
+
+        *, *::before, *::after {
+            box-sizing: inherit;
+        }
+
+        /* Typography */
+        h1, h2, h3, h4, h5, h6 {
+            margin: 0;
+            font-weight: var(--font-weight-semibold);
+            line-height: var(--line-height-tight);
+            color: var(--color-text);
+            letter-spacing: var(--letter-spacing-tight);
+        }
+
+        h1 { font-size: var(--font-size-4xl); }
+        h2 { font-size: var(--font-size-3xl); }
+        h3 { font-size: var(--font-size-2xl); }
+        h4 { font-size: var(--font-size-xl); }
+        h5 { font-size: var(--font-size-lg); }
+        h6 { font-size: var(--font-size-md); }
+
+        p {
+            margin: 0 0 var(--space-16) 0;
+        }
+
+        a {
+            color: var(--color-primary);
+            text-decoration: none;
+            transition: color var(--duration-fast) var(--ease-standard);
+        }
+
+        a:hover {
+            color: var(--color-primary-hover);
+        }
+
+        /* Buttons */
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: var(--space-8) var(--space-16);
+            border-radius: var(--radius-base);
+            font-size: var(--font-size-base);
+            font-weight: 500;
+            line-height: 1.5;
+            cursor: pointer;
+            transition: all var(--duration-normal) var(--ease-standard);
+            border: none;
+            text-decoration: none;
+            position: relative;
+        }
+
+        .btn:focus-visible {
+            outline: none;
+            box-shadow: var(--focus-ring);
+        }
+
+        .btn--primary {
+            background: var(--color-primary);
+            color: var(--color-btn-primary-text);
+        }
+
+        .btn--primary:hover {
+            background: var(--color-primary-hover);
+        }
+
+        .btn--primary:active {
+            background: var(--color-primary-active);
+        }
+
+        .btn--secondary {
+            background: var(--color-secondary);
+            color: var(--color-text);
+        }
+
+        .btn--secondary:hover {
+            background: var(--color-secondary-hover);
+        }
+
+        .btn--secondary:active {
+            background: var(--color-secondary-active);
+        }
+
+        .btn--outline {
+            background: transparent;
+            border: 1px solid var(--color-border);
+            color: var(--color-text);
+        }
+
+        .btn--outline:hover {
+            background: var(--color-secondary);
+        }
+
+        .btn--sm {
+            padding: var(--space-4) var(--space-12);
+            font-size: var(--font-size-sm);
+            border-radius: var(--radius-sm);
+        }
+
+        .btn--lg {
+            padding: var(--space-10) var(--space-20);
+            font-size: var(--font-size-lg);
+            border-radius: var(--radius-md);
+        }
+
+        .btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        /* Form elements */
+        .form-control {
+            display: block;
+            width: 100%;
+            padding: var(--space-8) var(--space-12);
+            font-size: var(--font-size-md);
+            line-height: 1.5;
+            color: var(--color-text);
+            background-color: var(--color-surface);
+            border: 1px solid var(--color-border);
+            border-radius: var(--radius-base);
+            transition: border-color var(--duration-fast) var(--ease-standard), box-shadow var(--duration-fast) var(--ease-standard);
+        }
+
+        select.form-control {
+            padding: var(--space-8) var(--space-12);
+            -webkit-appearance: none;
+            -moz-appearance: none;
+            appearance: none;
+            background-image: var(--select-caret-light);
+            background-repeat: no-repeat;
+            background-position: right var(--space-12) center;
+            background-size: 16px;
+            padding-right: var(--space-32);
+        }
+
+        .form-control:focus {
+            border-color: var(--color-primary);
+            outline: var(--focus-outline);
+        }
+
+        .form-label {
+            display: block;
+            margin-bottom: var(--space-8);
+            font-weight: var(--font-weight-medium);
+            font-size: var(--font-size-sm);
+        }
+
+        .form-group {
+            margin-bottom: var(--space-16);
+        }
+
+        /* Card component */
+        .card {
+            background-color: var(--color-surface);
+            border-radius: var(--radius-lg);
+            border: 1px solid var(--color-card-border);
+            box-shadow: var(--shadow-sm);
+            overflow: hidden;
+            transition: box-shadow var(--duration-normal) var(--ease-standard);
+        }
+
+        .card:hover {
+            box-shadow: var(--shadow-md);
+        }
+
+        .card__body {
+            padding: var(--space-16);
+        }
+
+        .card__header, .card__footer {
+            padding: var(--space-16);
+            border-bottom: 1px solid var(--color-card-border-inner);
+        }
+
+        /* Status indicators */
+        .status {
+            display: inline-flex;
+            align-items: center;
+            padding: var(--space-6) var(--space-12);
+            border-radius: var(--radius-full);
+            font-weight: var(--font-weight-medium);
+            font-size: var(--font-size-sm);
+        }
+
+        .status--success {
+            background-color: rgba(var(--color-success-rgb, 33, 128, 141), var(--status-bg-opacity));
+            color: var(--color-success);
+            border: 1px solid rgba(var(--color-success-rgb, 33, 128, 141), var(--status-border-opacity));
+        }
+
+        .status--error {
+            background-color: rgba(var(--color-error-rgb, 192, 21, 47), var(--status-bg-opacity));
+            color: var(--color-error);
+            border: 1px solid rgba(var(--color-error-rgb, 192, 21, 47), var(--status-border-opacity));
+        }
+
+        .status--warning {
+            background-color: rgba(var(--color-warning-rgb, 168, 75, 47), var(--status-bg-opacity));
+            color: var(--color-warning);
+            border: 1px solid rgba(var(--color-warning-rgb, 168, 75, 47), var(--status-border-opacity));
+        }
+
+        .status--info {
+            background-color: rgba(var(--color-info-rgb, 98, 108, 113), var(--status-bg-opacity));
+            color: var(--color-info);
+            border: 1px solid rgba(var(--color-info-rgb, 98, 108, 113), var(--status-border-opacity));
+        }
+
+        /* Utility classes */
+        .flex { display: flex; }
+        .flex-col { flex-direction: column; }
+        .items-center { align-items: center; }
+        .justify-center { justify-content: center; }
+        .justify-between { justify-content: space-between; }
+        .gap-4 { gap: var(--space-4); }
+        .gap-8 { gap: var(--space-8); }
+        .gap-16 { gap: var(--space-16); }
+        .hidden { display: none; }
+        .block { display: block; }
+        .mb-16 { margin-bottom: var(--space-16); }
+        .mt-16 { margin-top: var(--space-16); }
+        .p-16 { padding: var(--space-16); }
+        .text-center { text-align: center; }
+
+        /* Custom styles for this application */
+        .app-container {
+            max-width: var(--container-xl);
+            margin: 0 auto;
+            padding: var(--space-24);
+        }
+
+        .nav-tabs {
+            display: flex;
+            border-bottom: 1px solid var(--color-border);
+            margin-bottom: var(--space-24);
+        }
+
+        .nav-tab {
+            padding: var(--space-12) var(--space-16);
+            background: transparent;
+            border: none;
+            border-bottom: 2px solid transparent;
+            color: var(--color-text-secondary);
+            cursor: pointer;
+            transition: all var(--duration-fast) var(--ease-standard);
+        }
+
+        .nav-tab.active {
+            color: var(--color-primary);
+            border-bottom-color: var(--color-primary);
+        }
+
+        .nav-tab:hover {
+            color: var(--color-text);
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: var(--space-16);
+            margin-bottom: var(--space-24);
+        }
+
+        .stat-card {
+            text-align: center;
+        }
+
+        .stat-number {
+            font-size: var(--font-size-3xl);
+            font-weight: var(--font-weight-bold);
+            color: var(--color-primary);
+        }
+
+        .voice-interface {
+            text-align: center;
+            padding: var(--space-32);
+            background: var(--color-bg-1);
+            border-radius: var(--radius-lg);
+            margin: var(--space-24) 0;
+        }
+
+        .microphone-btn {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            background: var(--color-primary);
+            border: none;
+            color: white;
+            font-size: var(--font-size-3xl);
+            cursor: pointer;
+            transition: all var(--duration-normal) var(--ease-standard);
+            margin-bottom: var(--space-16);
+        }
+
+        .microphone-btn:hover {
+            background: var(--color-primary-hover);
+            transform: scale(1.05);
+        }
+
+        .microphone-btn.active {
+            background: var(--color-error);
+            animation: pulse 1s infinite;
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+            100% { transform: scale(1); }
+        }
+
+        .current-student {
+            font-size: var(--font-size-2xl);
+            font-weight: var(--font-weight-bold);
+            margin-bottom: var(--space-16);
+        }
+
+        .countdown-timer {
+            font-size: var(--font-size-xl);
+            color: var(--color-warning);
+            margin-bottom: var(--space-16);
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: var(--space-8);
+            background: var(--color-secondary);
+            border-radius: var(--radius-full);
+            overflow: hidden;
+            margin-bottom: var(--space-16);
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: var(--color-primary);
+            transition: width var(--duration-normal) var(--ease-standard);
+        }
+
+        .student-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: var(--space-8) var(--space-12);
+            border-bottom: 1px solid var(--color-card-border);
+        }
+
+        .student-row.current {
+            background: var(--color-bg-2);
+            font-weight: var(--font-weight-bold);
+        }
+
+        .attendance-toggle {
+            display: flex;
+            align-items: center;
+            gap: var(--space-8);
+        }
+
+        .toggle-switch {
+            position: relative;
+            display: inline-block;
+            width: 44px;
+            height: 24px;
+        }
+
+        .toggle-switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        .toggle-slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: var(--color-secondary);
+            transition: var(--duration-normal);
+            border-radius: var(--radius-full);
+        }
+
+        .toggle-slider:before {
+            position: absolute;
+            content: "";
+            height: 18px;
+            width: 18px;
+            left: 3px;
+            bottom: 3px;
+            background-color: white;
+            transition: var(--duration-normal);
+            border-radius: 50%;
+        }
+
+        input:checked + .toggle-slider {
+            background-color: var(--color-success);
+        }
+
+        input:checked + .toggle-slider:before {
+            transform: translateX(20px);
+        }
+
+        .table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: var(--space-16);
+        }
+
+        .table th,
+        .table td {
+            padding: var(--space-12);
+            text-align: left;
+            border-bottom: 1px solid var(--color-card-border);
+        }
+
+        .table th {
+            background: var(--color-bg-3);
+            font-weight: var(--font-weight-semibold);
+        }
+
+        .table tr:hover {
+            background: var(--color-bg-1);
+        }
+
+        .attendance-row-excellent {
+            background: var(--color-bg-3) !important;
+        }
+
+        .attendance-row-good {
+            background: var(--color-bg-2) !important;
+        }
+
+        .attendance-row-average {
+            background: var(--color-bg-6) !important;
+        }
+
+        .attendance-row-poor {
+            background: var(--color-bg-4) !important;
+        }
+
+        .file-input-wrapper {
+            position: relative;
+            overflow: hidden;
+            display: inline-block;
+        }
+
+        .file-input {
+            position: absolute;
+            left: -9999px;
+        }
+
+        .current-class-indicator {
+            background: var(--color-bg-3);
+            border-radius: var(--radius-lg);
+            padding: var(--space-16);
+            margin-bottom: var(--space-16);
+            border-left: 4px solid var(--color-success);
+        }
+
+        .timetable-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: var(--space-16);
+        }
+
+        .time-slot {
+            padding: var(--space-12);
+            background: var(--color-surface);
+            border-radius: var(--radius-base);
+            border: 1px solid var(--color-card-border);
+        }
+
+        .time-slot.current {
+            border-color: var(--color-success);
+            background: var(--color-bg-3);
+        }
+
+        .voice-status {
+            display: flex;
+            align-items: center;
+            gap: var(--space-8);
+            justify-content: center;
+            margin: var(--space-16) 0;
+        }
+
+        .voice-indicator {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: var(--color-secondary);
+            animation: blink 1s infinite;
+        }
+
+        .voice-indicator.listening {
+            background: var(--color-success);
+        }
+
+        .voice-indicator.speaking {
+            background: var(--color-warning);
+        }
+
+        @keyframes blink {
+            0%, 50% { opacity: 1; }
+            51%, 100% { opacity: 0.3; }
+        }
+
+        @font-face {
+            font-family: 'FKGroteskNeue';
+            src: url('https://r2cdn.perplexity.ai/fonts/FKGroteskNeue.woff2') format('woff2');
+        }
+    </style>
+</head>
+<body>
+    <div class="app-container">
+        <h1 class="text-center mb-16">Voice Attendance System</h1>
+        
+        <!-- Navigation -->
+        <div class="nav-tabs">
+            <button class="nav-tab active" data-tab="dashboard">Dashboard</button>
+            <button class="nav-tab" data-tab="classes">Classes</button>
+            <button class="nav-tab" data-tab="timetable">Timetable</button>
+            <button class="nav-tab" data-tab="attendance">Take Attendance</button>
+            <button class="nav-tab" data-tab="records">Records</button>
+            <button class="nav-tab" data-tab="statistics">Statistics</button>
+        </div>
+
+        <!-- Dashboard Tab -->
+        <div class="tab-content active" id="dashboard">
+            <div class="stats-grid">
+                <div class="card stat-card">
+                    <div class="card__body">
+                        <div class="stat-number" id="totalClasses">0</div>
+                        <div>Total Classes</div>
+                    </div>
+                </div>
+                <div class="card stat-card">
+                    <div class="card__body">
+                        <div class="stat-number" id="totalStudents">0</div>
+                        <div>Total Students</div>
+                    </div>
+                </div>
+                <div class="card stat-card">
+                    <div class="card__body">
+                        <div class="stat-number" id="avgAttendance">0%</div>
+                        <div>Average Attendance</div>
+                    </div>
+                </div>
+                <div class="card stat-card">
+                    <div class="card__body">
+                        <div class="stat-number" id="todayClasses">0</div>
+                        <div>Today's Classes</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="current-class-indicator" id="currentClassIndicator">
+                <h3>Current Class</h3>
+                <p id="currentClassInfo">No class scheduled at this time</p>
+            </div>
+
+            <div class="card">
+                <div class="card__body">
+                    <h3>Recent Activity</h3>
+                    <div id="recentActivity">
+                        <p>No recent activity</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Classes Tab -->
+        <div class="tab-content" id="classes">
+            <div class="card mb-16">
+                <div class="card__header">
+                    <h3>Create New Class</h3>
+                </div>
+                <div class="card__body">
+                    <div class="form-group">
+                        <label class="form-label">Class Name</label>
+                        <input type="text" class="form-control" id="className" placeholder="e.g., Mathematics 101">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Subject</label>
+                        <input type="text" class="form-control" id="classSubject" placeholder="e.g., Mathematics">
+                    </div>
+                    <button class="btn btn--primary" onclick="createClass()">Create Class</button>
+                </div>
+            </div>
+
+            <div class="card mb-16">
+                <div class="card__header">
+                    <h3>Import Students from Excel</h3>
+                </div>
+                <div class="card__body">
+                    <div class="form-group">
+                        <label class="form-label">Select Class</label>
+                        <select class="form-control" id="importClassSelect">
+                            <option value="">Select a class</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Excel File (.xlsx)</label>
+                        <div class="file-input-wrapper">
+                            <input type="file" class="file-input" id="excelFile" accept=".xlsx" onchange="handleExcelImport(event)">
+                            <button class="btn btn--outline">Choose File</button>
+                        </div>
+                    </div>
+                    <div id="importPreview"></div>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card__header">
+                    <h3>Existing Classes</h3>
+                </div>
+                <div class="card__body">
+                    <div id="classesList">No classes created yet</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Timetable Tab -->
+        <div class="tab-content" id="timetable">
+            <div class="card mb-16">
+                <div class="card__header">
+                    <h3>Add Timetable Entry</h3>
+                </div>
+                <div class="card__body">
+                    <div class="flex gap-16">
+                        <div class="form-group flex-1">
+                            <label class="form-label">Class</label>
+                            <select class="form-control" id="timetableClassSelect">
+                                <option value="">Select a class</option>
+                            </select>
+                        </div>
+                        <div class="form-group flex-1">
+                            <label class="form-label">Day</label>
+                            <select class="form-control" id="timetableDay">
+                                <option value="Monday">Monday</option>
+                                <option value="Tuesday">Tuesday</option>
+                                <option value="Wednesday">Wednesday</option>
+                                <option value="Thursday">Thursday</option>
+                                <option value="Friday">Friday</option>
+                                <option value="Saturday">Saturday</option>
+                                <option value="Sunday">Sunday</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="flex gap-16">
+                        <div class="form-group flex-1">
+                            <label class="form-label">Start Time</label>
+                            <input type="time" class="form-control" id="timetableStartTime">
+                        </div>
+                        <div class="form-group flex-1">
+                            <label class="form-label">End Time</label>
+                            <input type="time" class="form-control" id="timetableEndTime">
+                        </div>
+                    </div>
+                    <button class="btn btn--primary" onclick="addTimetableEntry()">Add to Timetable</button>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card__header">
+                    <h3>Weekly Timetable</h3>
+                </div>
+                <div class="card__body">
+                    <div id="timetableDisplay" class="timetable-grid">
+                        <p>No timetable entries yet</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Attendance Tab -->
+        <div class="tab-content" id="attendance">
+            <div class="card mb-16">
+                <div class="card__header">
+                    <h3>Select Class for Attendance</h3>
+                </div>
+                <div class="card__body">
+                    <div class="form-group">
+                        <label class="form-label">Class</label>
+                        <select class="form-control" id="attendanceClassSelect" onchange="loadStudentsForAttendance()">
+                            <option value="">Select a class</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Date</label>
+                        <input type="date" class="form-control" id="attendanceDate">
+                    </div>
+                </div>
+            </div>
+
+            <!-- Voice Interface -->
+            <div class="voice-interface" id="voiceInterface" style="display: none;">
+                <button class="microphone-btn" id="microphoneBtn" onclick="toggleVoiceAttendance()">🎤</button>
+                <div class="current-student" id="currentStudentDisplay">Ready to start</div>
+                <div class="countdown-timer" id="countdownDisplay"></div>
+                <div class="voice-status">
+                    <div class="voice-indicator" id="voiceIndicator"></div>
+                    <span id="voiceStatus">Click microphone to start</span>
+                </div>
+                <div class="progress-bar">
+                    <div class="progress-fill" id="progressFill" style="width: 0%"></div>
+                </div>
+                <div class="flex gap-8 justify-center">
+                    <button class="btn btn--secondary" onclick="skipStudent()">Skip Student</button>
+                    <button class="btn btn--outline" onclick="pauseVoiceAttendance()">Pause</button>
+                    <button class="btn btn--primary" onclick="completeAttendance()">Complete</button>
+                </div>
+            </div>
+
+            <!-- Manual Override Interface -->
+            <div class="card" id="manualOverrideInterface" style="display: none;">
+                <div class="card__header">
+                    <h3>Manual Override &amp; Student List</h3>
+                </div>
+                <div class="card__body">
+                    <div id="studentsList"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Records Tab -->
+        <div class="tab-content" id="records">
+            <div class="card mb-16">
+                <div class="card__header">
+                    <h3>View Attendance Records</h3>
+                </div>
+                <div class="card__body">
+                    <div class="flex gap-16">
+                        <div class="form-group flex-1">
+                            <label class="form-label">Class</label>
+                            <select class="form-control" id="recordsClassSelect" onchange="loadAttendanceRecords()">
+                                <option value="">Select a class</option>
+                            </select>
+                        </div>
+                        <div class="form-group flex-1">
+                            <label class="form-label">From Date</label>
+                            <input type="date" class="form-control" id="recordsFromDate" onchange="loadAttendanceRecords()">
+                        </div>
+                        <div class="form-group flex-1">
+                            <label class="form-label">To Date</label>
+                            <input type="date" class="form-control" id="recordsToDate" onchange="loadAttendanceRecords()">
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card__header">
+                    <h3>Attendance Records</h3>
+                </div>
+                <div class="card__body">
+                    <div id="attendanceRecordsDisplay">
+                        <p>Select a class to view records</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Statistics Tab -->
+        <div class="tab-content" id="statistics">
+            <div class="card mb-16">
+                <div class="card__header">
+                    <h3>Class Statistics</h3>
+                </div>
+                <div class="card__body">
+                    <div class="form-group">
+                        <label class="form-label">Select Class</label>
+                        <select class="form-control" id="statisticsClassSelect" onchange="generateStatistics()">
+                            <option value="">Select a class</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card__header">
+                    <h3>Attendance Statistics &amp; Marks</h3>
+                </div>
+                <div class="card__body">
+                    <div id="statisticsDisplay">
+                        <p>Select a class to view statistics</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Application state - using variables instead of localStorage due to sandbox restrictions
+        let appData = {
+            classes: [],
+            timetable: [],
+            attendanceRecords: []
+        };
+
+        // Voice recognition variables
+        let recognition = null;
+        let isVoiceActive = false;
+        let currentStudentIndex = 0;
+        let currentClassStudents = [];
+        let attendanceData = {};
+        let voiceTimeout = null;
+        let countdownInterval = null;
+        let secondCallTimeout = null;
+        let responseDetected = false;
+
+        // Initialize the application
+        function init() {
+            // Set today's date as default
+            const today = new Date().toISOString().split('T')[0];
+            document.getElementById('attendanceDate').value = today;
+            document.getElementById('recordsFromDate').value = today;
+            document.getElementById('recordsToDate').value = today;
+
+            // Initialize voice recognition
+            initVoiceRecognition();
+
+            // Update dashboard
+            updateDashboard();
+
+            // Load sample data
+            loadSampleData();
+        }
+
+        // Load sample data for demonstration
+        function loadSampleData() {
+            // Create a sample class
+            const sampleClass = {
+                id: 'math_101',
+                name: 'Mathematics 101',
+                subject: 'Mathematics',
+                students: [
+                    { rollNo: '001', name: 'Aarav Sharma' },
+                    { rollNo: '002', name: 'Ananya Patel' },
+                    { rollNo: '003', name: 'Arjun Kumar' },
+                    { rollNo: '004', name: 'Diya Singh' },
+                    { rollNo: '005', name: 'Ishaan Gupta' },
+                    { rollNo: '006', name: 'Kavya Reddy' },
+                    { rollNo: '007', name: 'Rohan Verma' },
+                    { rollNo: '008', name: 'Priya Nair' },
+                    { rollNo: '009', name: 'Vikram Joshi' },
+                    { rollNo: '010', name: 'Sanya Agarwal' }
+                ]
+            };
+            appData.classes.push(sampleClass);
+
+            // Add sample timetable
+            const sampleTimetable = [
+                { classId: 'math_101', day: 'Monday', startTime: '09:00', endTime: '10:00' },
+                { classId: 'math_101', day: 'Wednesday', startTime: '11:00', endTime: '12:00' },
+                { classId: 'math_101', day: 'Friday', startTime: '14:00', endTime: '15:00' }
+            ];
+            appData.timetable = sampleTimetable;
+
+            // Add some sample attendance records
+            const today = new Date().toISOString().split('T')[0];
+            const yesterday = new Date();
+            yesterday.setDate(yesterday.getDate() - 1);
+            const yesterdayStr = yesterday.toISOString().split('T')[0];
+
+            appData.attendanceRecords = [
+                {
+                    classId: 'math_101',
+                    date: yesterdayStr,
+                    attendance: {
+                        '001': true, '002': true, '003': false, '004': true, '005': true,
+                        '006': false, '007': true, '008': true, '009': true, '010': false
+                    }
+                }
+            ];
+
+            // Refresh displays
+            updateDashboard();
+            updateClassSelectors();
+            displayClasses();
+            displayTimetable();
+        }
+
+        // Tab switching functionality
+        document.querySelectorAll('.nav-tab').forEach(tab => {
+            tab.addEventListener('click', function() {
+                const targetTab = this.dataset.tab;
+                
+                // Update active tab
+                document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
+                this.classList.add('active');
+                
+                // Show target content
+                document.querySelectorAll('.tab-content').forEach(content => {
+                    content.classList.remove('active');
+                });
+                document.getElementById(targetTab).classList.add('active');
+
+                // Update selectors when switching tabs
+                updateClassSelectors();
+            });
+        });
+
+        // Voice Recognition Setup
+        function initVoiceRecognition() {
+            if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
+                const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+                recognition = new SpeechRecognition();
+                
+                recognition.continuous = false;
+                recognition.interimResults = false;
+                recognition.lang = 'en-US';
+                
+                recognition.onresult = function(event) {
+                    const transcript = event.results[0][0].transcript.toLowerCase().trim();
+                    console.log('Heard:', transcript);
+                    
+                    const validResponses = ['present', 'here', 'yes', 'yep', 'yeah'];
+                    if (validResponses.some(response => transcript.includes(response))) {
+                        responseDetected = true;
+                        markStudentPresent();
+                        
+                        // Cancel second call if it's scheduled
+                        if (secondCallTimeout) {
+                            clearTimeout(secondCallTimeout);
+                            secondCallTimeout = null;
+                        }
+                        
+                        moveToNextStudent();
+                    }
+                };
+                
+                recognition.onerror = function(event) {
+                    console.log('Speech recognition error:', event.error);
+                    updateVoiceStatus('Error: ' + event.error);
+                };
+                
+                recognition.onend = function() {
+                    if (isVoiceActive && currentStudentIndex < currentClassStudents.length) {
+                        // Restart recognition if we're still taking attendance
+                        setTimeout(() => {
+                            if (isVoiceActive) {
+                                recognition.start();
+                            }
+                        }, 100);
+                    }
+                };
+            } else {
+                document.getElementById('voiceStatus').textContent = 'Voice recognition not supported in this browser';
+            }
+        }
+
+        // Voice Attendance Functions
+        function toggleVoiceAttendance() {
+            if (!isVoiceActive) {
+                startVoiceAttendance();
+            } else {
+                stopVoiceAttendance();
+            }
+        }
+
+        function startVoiceAttendance() {
+            const selectedClass = document.getElementById('attendanceClassSelect').value;
+            if (!selectedClass) {
+                alert('Please select a class first');
+                return;
+            }
+
+            if (!recognition) {
+                alert('Voice recognition is not available in this browser. Please use Chrome or Edge.');
+                return;
+            }
+
+            const classData = appData.classes.find(c => c.id === selectedClass);
+            if (!classData || !classData.students || classData.students.length === 0) {
+                alert('No students found in selected class');
+                return;
+            }
+
+            currentClassStudents = classData.students;
+            currentStudentIndex = 0;
+            attendanceData = {};
+            isVoiceActive = true;
+            responseDetected = false;
+
+            document.getElementById('microphoneBtn').classList.add('active');
+            document.getElementById('microphoneBtn').textContent = '⏹️';
+            
+            updateVoiceStatus('Starting attendance...');
+            updateProgress();
+            
+            // Start recognition
+            recognition.start();
+            
+            // Start calling the first student
+            callCurrentStudent();
+        }
+
+        function stopVoiceAttendance() {
+            isVoiceActive = false;
+            responseDetected = false;
+            
+            if (recognition) {
+                recognition.stop();
+            }
+            
+            if (voiceTimeout) {
+                clearTimeout(voiceTimeout);
+            }
+            if (countdownInterval) {
+                clearInterval(countdownInterval);
+            }
+            if (secondCallTimeout) {
+                clearTimeout(secondCallTimeout);
+            }
+            
+            document.getElementById('microphoneBtn').classList.remove('active');
+            document.getElementById('microphoneBtn').textContent = '🎤';
+            document.getElementById('voiceIndicator').className = 'voice-indicator';
+            
+            updateVoiceStatus('Stopped');
+            document.getElementById('countdownDisplay').textContent = '';
+        }
+
+        function callCurrentStudent() {
+            if (!isVoiceActive || currentStudentIndex >= currentClassStudents.length) {
+                return;
+            }
+
+            const student = currentClassStudents[currentStudentIndex];
+            responseDetected = false;
+            
+            updateCurrentStudentDisplay(student);
+            updateVoiceStatus('Calling student...');
+            document.getElementById('voiceIndicator').className = 'voice-indicator speaking';
+            
+            // First call: "Roll number X"
+            const firstCall = `Roll number ${student.rollNo}`;
+            speak(firstCall);
+            
+            // Start 3-second countdown
+            startCountdown(3, () => {
+                // After 3 seconds, make second call if no response detected
+                if (!responseDetected && isVoiceActive) {
+                    const secondCall = `Roll number ${student.rollNo}, ${student.name}`;
+                    secondCallTimeout = setTimeout(() => {
+                        if (!responseDetected && isVoiceActive) {
+                            speak(secondCall);
+                            
+                            // Wait additional time for response to second call
+                            setTimeout(() => {
+                                if (!responseDetected && isVoiceActive) {
+                                    // No response to second call, mark as absent and move on
+                                    markStudentAbsent();
+                                    moveToNextStudent();
+                                }
+                            }, 4000);
+                        }
+                    }, 100);
+                }
+            });
+        }
+
+        function speak(text) {
+            if ('speechSynthesis' in window) {
+                const utterance = new SpeechSynthesisUtterance(text);
+                utterance.rate = 0.9;
+                utterance.pitch = 1;
+                speechSynthesis.speak(utterance);
+            }
+        }
+
+        function startCountdown(seconds, callback) {
+            let remaining = seconds;
+            document.getElementById('countdownDisplay').textContent = `Waiting for response: ${remaining}s`;
+            
+            countdownInterval = setInterval(() => {
+                remaining--;
+                document.getElementById('countdownDisplay').textContent = `Waiting for response: ${remaining}s`;
+                
+                if (remaining <= 0 || responseDetected) {
+                    clearInterval(countdownInterval);
+                    document.getElementById('countdownDisplay').textContent = '';
+                    if (callback) callback();
+                }
+            }, 1000);
+        }
+
+        function markStudentPresent() {
+            const student = currentClassStudents[currentStudentIndex];
+            attendanceData[student.rollNo] = true;
+            updateVoiceStatus(`${student.name} marked present`);
+            document.getElementById('voiceIndicator').className = 'voice-indicator listening';
+            updateStudentRowStatus(student.rollNo, true);
+        }
+
+        function markStudentAbsent() {
+            const student = currentClassStudents[currentStudentIndex];
+            attendanceData[student.rollNo] = false;
+            updateVoiceStatus(`${student.name} marked absent`);
+            updateStudentRowStatus(student.rollNo, false);
+        }
+
+        function moveToNextStudent() {
+            currentStudentIndex++;
+            updateProgress();
+            
+            if (currentStudentIndex >= currentClassStudents.length) {
+                completeAttendance();
+                return;
+            }
+            
+            // Brief pause before calling next student
+            setTimeout(() => {
+                if (isVoiceActive) {
+                    callCurrentStudent();
+                }
+            }, 1500);
+        }
+
+        function skipStudent() {
+            if (!isVoiceActive) return;
+            
+            responseDetected = true; // Prevent second call
+            markStudentAbsent();
+            moveToNextStudent();
+        }
+
+        function pauseVoiceAttendance() {
+            if (isVoiceActive) {
+                stopVoiceAttendance();
+            } else {
+                startVoiceAttendance();
+            }
+        }
+
+        function completeAttendance() {
+            stopVoiceAttendance();
+            
+            // Save attendance record
+            const selectedClass = document.getElementById('attendanceClassSelect').value;
+            const date = document.getElementById('attendanceDate').value;
+            
+            const existingRecordIndex = appData.attendanceRecords.findIndex(
+                r => r.classId === selectedClass && r.date === date
+            );
+            
+            const record = {
+                classId: selectedClass,
+                date: date,
+                attendance: { ...attendanceData }
+            };
+            
+            if (existingRecordIndex >= 0) {
+                appData.attendanceRecords[existingRecordIndex] = record;
+            } else {
+                appData.attendanceRecords.push(record);
+            }
+            
+            updateVoiceStatus('Attendance completed and saved!');
+            updateDashboard();
+            
+            // Show completion summary
+            const totalStudents = currentClassStudents.length;
+            const presentCount = Object.values(attendanceData).filter(present => present).length;
+            
+            setTimeout(() => {
+                alert(`Attendance completed!\n\nPresent: ${presentCount}\nAbsent: ${totalStudents - presentCount}\nTotal: ${totalStudents}`);
+            }, 1000);
+        }
+
+        // Helper functions
+        function updateCurrentStudentDisplay(student) {
+            document.getElementById('currentStudentDisplay').textContent = 
+                `Roll No: ${student.rollNo} - ${student.name}`;
+            
+            // Highlight current student in the list
+            document.querySelectorAll('.student-row').forEach(row => {
+                row.classList.remove('current');
+            });
+            
+            const currentRow = document.querySelector(`[data-roll-no="${student.rollNo}"]`);
+            if (currentRow) {
+                currentRow.classList.add('current');
+            }
+        }
+
+        function updateVoiceStatus(status) {
+            document.getElementById('voiceStatus').textContent = status;
+        }
+
+        function updateProgress() {
+            const progress = currentClassStudents.length > 0 ? 
+                (currentStudentIndex / currentClassStudents.length) * 100 : 0;
+            document.getElementById('progressFill').style.width = progress + '%';
+        }
+
+        function updateStudentRowStatus(rollNo, present) {
+            const toggle = document.querySelector(`[data-student-toggle="${rollNo}"]`);
+            if (toggle) {
+                toggle.checked = present;
+            }
+        }
+
+        // Class Management Functions
+        function createClass() {
+            const name = document.getElementById('className').value.trim();
+            const subject = document.getElementById('classSubject').value.trim();
+            
+            if (!name || !subject) {
+                alert('Please fill in both class name and subject');
+                return;
+            }
+            
+            const classId = 'class_' + Date.now();
+            const newClass = {
+                id: classId,
+                name: name,
+                subject: subject,
+                students: []
+            };
+            
+            appData.classes.push(newClass);
+            
+            // Clear form
+            document.getElementById('className').value = '';
+            document.getElementById('classSubject').value = '';
+            
+            // Update displays
+            displayClasses();
+            updateClassSelectors();
+            updateDashboard();
+            
+            alert('Class created successfully!');
+        }
+
+        function displayClasses() {
+            const container = document.getElementById('classesList');
+            
+            if (appData.classes.length === 0) {
+                container.innerHTML = '<p>No classes created yet</p>';
+                return;
+            }
+            
+            const html = appData.classes.map(classData => `
+                <div class="card mb-16">
+                    <div class="card__header">
+                        <h4>${classData.name}</h4>
+                        <p>Subject: ${classData.subject} | Students: ${classData.students.length}</p>
+                    </div>
+                    <div class="card__body">
+                        ${classData.students.length > 0 ? 
+                            `<table class="table">
+                                <thead>
+                                    <tr>
+                                        <th>Roll No</th>
+                                        <th>Name</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    ${classData.students.map(student => `
+                                        <tr>
+                                            <td>${student.rollNo}</td>
+                                            <td>${student.name}</td>
+                                            <td>
+                                                <button class="btn btn--sm btn--outline" onclick="removeStudent('${classData.id}', '${student.rollNo}')">Remove</button>
+                                            </td>
+                                        </tr>
+                                    `).join('')}
+                                </tbody>
+                            </table>` : 
+                            '<p>No students in this class. Use Excel import to add students.</p>'
+                        }
+                        <button class="btn btn--sm btn--outline mt-16" onclick="removeClass('${classData.id}')">Delete Class</button>
+                    </div>
+                </div>
+            `).join('');
+            
+            container.innerHTML = html;
+        }
+
+        function removeClass(classId) {
+            if (confirm('Are you sure you want to delete this class? This will also remove all associated timetable entries and attendance records.')) {
+                appData.classes = appData.classes.filter(c => c.id !== classId);
+                appData.timetable = appData.timetable.filter(t => t.classId !== classId);
+                appData.attendanceRecords = appData.attendanceRecords.filter(r => r.classId !== classId);
+                
+                displayClasses();
+                updateClassSelectors();
+                displayTimetable();
+                updateDashboard();
+            }
+        }
+
+        function removeStudent(classId, rollNo) {
+            if (confirm('Are you sure you want to remove this student?')) {
+                const classData = appData.classes.find(c => c.id === classId);
+                if (classData) {
+                    classData.students = classData.students.filter(s => s.rollNo !== rollNo);
+                    displayClasses();
+                    updateDashboard();
+                }
+            }
+        }
+
+        // Excel Import Functions
+        function handleExcelImport(event) {
+            const file = event.target.files[0];
+            const classId = document.getElementById('importClassSelect').value;
+            
+            if (!file) return;
+            
+            if (!classId) {
+                alert('Please select a class first');
+                return;
+            }
+            
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                try {
+                    const data = new Uint8Array(e.target.result);
+                    const workbook = XLSX.read(data, { type: 'array' });
+                    const sheetName = workbook.SheetNames[0];
+                    const worksheet = workbook.Sheets[sheetName];
+                    const jsonData = XLSX.utils.sheet_to_json(worksheet);
+                    
+                    if (jsonData.length === 0) {
+                        alert('The Excel file is empty');
+                        return;
+                    }
+                    
+                    // Validate required columns
+                    const firstRow = jsonData[0];
+                    if (!firstRow.hasOwnProperty('Roll No') || !firstRow.hasOwnProperty('Name')) {
+                        alert('Excel file must contain "Roll No" and "Name" columns');
+                        return;
+                    }
+                    
+                    // Show preview
+                    showImportPreview(jsonData, classId);
+                    
+                } catch (error) {
+                    alert('Error reading Excel file: ' + error.message);
+                }
+            };
+            
+            reader.readAsArrayBuffer(file);
+        }
+
+        function showImportPreview(data, classId) {
+            const container = document.getElementById('importPreview');
+            
+            const html = `
+                <div class="card mt-16">
+                    <div class="card__header">
+                        <h4>Import Preview (${data.length} students)</h4>
+                    </div>
+                    <div class="card__body">
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th>Roll No</th>
+                                    <th>Name</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                ${data.slice(0, 10).map(row => `
+                                    <tr>
+                                        <td>${row['Roll No']}</td>
+                                        <td>${row['Name']}</td>
+                                    </tr>
+                                `).join('')}
+                                ${data.length > 10 ? `<tr><td colspan="2">... and ${data.length - 10} more students</td></tr>` : ''}
+                            </tbody>
+                        </table>
+                        <div class="mt-16">
+                            <button class="btn btn--primary" onclick="confirmImport('${classId}')" data-import-data='${JSON.stringify(data)}'>Import Students</button>
+                            <button class="btn btn--outline" onclick="cancelImport()">Cancel</button>
+                        </div>
+                    </div>
+                </div>
+            `;
+            
+            container.innerHTML = html;
+        }
+
+        function confirmImport(classId) {
+            const button = event.target;
+            const data = JSON.parse(button.dataset.importData);
+            
+            const classData = appData.classes.find(c => c.id === classId);
+            if (!classData) {
+                alert('Class not found');
+                return;
+            }
+            
+            // Convert Excel data to student objects
+            const students = data.map(row => ({
+                rollNo: String(row['Roll No']).trim(),
+                name: String(row['Name']).trim()
+            })).filter(student => student.rollNo && student.name);
+            
+            // Remove duplicates and merge with existing students
+            const existingRollNos = classData.students.map(s => s.rollNo);
+            const newStudents = students.filter(s => !existingRollNos.includes(s.rollNo));
+            
+            classData.students = classData.students.concat(newStudents);
+            
+            // Sort by roll number
+            classData.students.sort((a, b) => a.rollNo.localeCompare(b.rollNo));
+            
+            // Update displays
+            displayClasses();
+            updateDashboard();
+            cancelImport();
+            
+            alert(`Successfully imported ${newStudents.length} students (${students.length - newStudents.length} duplicates skipped)`);
+        }
+
+        function cancelImport() {
+            document.getElementById('importPreview').innerHTML = '';
+            document.getElementById('excelFile').value = '';
+        }
+
+        // Timetable Functions
+        function addTimetableEntry() {
+            const classId = document.getElementById('timetableClassSelect').value;
+            const day = document.getElementById('timetableDay').value;
+            const startTime = document.getElementById('timetableStartTime').value;
+            const endTime = document.getElementById('timetableEndTime').value;
+            
+            if (!classId || !startTime || !endTime) {
+                alert('Please fill in all fields');
+                return;
+            }
+            
+            if (startTime >= endTime) {
+                alert('Start time must be before end time');
+                return;
+            }
+            
+            // Check for conflicts
+            const conflict = appData.timetable.find(entry => 
+                entry.day === day && 
+                ((startTime >= entry.startTime && startTime < entry.endTime) ||
+                 (endTime > entry.startTime && endTime <= entry.endTime) ||
+                 (startTime <= entry.startTime && endTime >= entry.endTime))
+            );
+            
+            if (conflict) {
+                alert('Time conflict detected with existing timetable entry');
+                return;
+            }
+            
+            const newEntry = {
+                classId: classId,
+                day: day,
+                startTime: startTime,
+                endTime: endTime
+            };
+            
+            appData.timetable.push(newEntry);
+            
+            // Clear form
+            document.getElementById('timetableStartTime').value = '';
+            document.getElementById('timetableEndTime').value = '';
+            
+            displayTimetable();
+            updateDashboard();
+            
+            alert('Timetable entry added successfully!');
+        }
+
+        function displayTimetable() {
+            const container = document.getElementById('timetableDisplay');
+            
+            if (appData.timetable.length === 0) {
+                container.innerHTML = '<p>No timetable entries yet</p>';
+                return;
+            }
+            
+            // Group by day
+            const days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
+            const groupedByDay = {};
+            
+            days.forEach(day => {
+                groupedByDay[day] = appData.timetable
+                    .filter(entry => entry.day === day)
+                    .sort((a, b) => a.startTime.localeCompare(b.startTime));
+            });
+            
+            const html = days.map(day => {
+                const dayEntries = groupedByDay[day];
+                if (dayEntries.length === 0) return '';
+                
+                return `
+                    <div class="card">
+                        <div class="card__header">
+                            <h4>${day}</h4>
+                        </div>
+                        <div class="card__body">
+                            ${dayEntries.map(entry => {
+                                const classData = appData.classes.find(c => c.id === entry.classId);
+                                const isCurrentClass = isCurrentTimeSlot(day, entry.startTime, entry.endTime);
+                                
+                                return `
+                                    <div class="time-slot ${isCurrentClass ? 'current' : ''}">
+                                        <div><strong>${entry.startTime} - ${entry.endTime}</strong></div>
+                                        <div>${classData ? classData.name : 'Unknown Class'}</div>
+                                        <div class="mt-8">
+                                            <button class="btn btn--sm btn--outline" onclick="removeTimetableEntry('${entry.classId}', '${entry.day}', '${entry.startTime}')">Remove</button>
+                                        </div>
+                                    </div>
+                                `;
+                            }).join('')}
+                        </div>
+                    </div>
+                `;
+            }).filter(html => html).join('');
+            
+            container.innerHTML = html || '<p>No timetable entries yet</p>';
+        }
+
+        function removeTimetableEntry(classId, day, startTime) {
+            if (confirm('Are you sure you want to remove this timetable entry?')) {
+                appData.timetable = appData.timetable.filter(entry => 
+                    !(entry.classId === classId && entry.day === day && entry.startTime === startTime)
+                );
+                displayTimetable();
+                updateDashboard();
+            }
+        }
+
+        function isCurrentTimeSlot(day, startTime, endTime) {
+            const now = new Date();
+            const currentDay = now.toLocaleDateString('en-US', { weekday: 'long' });
+            const currentTime = now.toTimeString().slice(0, 5);
+            
+            if (day !== currentDay) return false;
+            
+            // Add 10-minute buffer
+            const startTimeWithBuffer = subtractMinutes(startTime, 10);
+            const endTimeWithBuffer = addMinutes(endTime, 10);
+            
+            return currentTime >= startTimeWithBuffer && currentTime <= endTimeWithBuffer;
+        }
+
+        function addMinutes(time, minutes) {
+            const [hours, mins] = time.split(':').map(Number);
+            const totalMinutes = hours * 60 + mins + minutes;
+            const newHours = Math.floor(totalMinutes / 60);
+            const newMins = totalMinutes % 60;
+            return `${String(newHours).padStart(2, '0')}:${String(newMins).padStart(2, '0')}`;
+        }
+
+        function subtractMinutes(time, minutes) {
+            const [hours, mins] = time.split(':').map(Number);
+            const totalMinutes = hours * 60 + mins - minutes;
+            const newHours = Math.max(0, Math.floor(totalMinutes / 60));
+            const newMins = Math.max(0, totalMinutes % 60);
+            return `${String(newHours).padStart(2, '0')}:${String(newMins).padStart(2, '0')}`;
+        }
+
+        // Attendance Management
+        function loadStudentsForAttendance() {
+            const selectedClass = document.getElementById('attendanceClassSelect').value;
+            if (!selectedClass) {
+                document.getElementById('voiceInterface').style.display = 'none';
+                document.getElementById('manualOverrideInterface').style.display = 'none';
+                return;
+            }
+            
+            const classData = appData.classes.find(c => c.id === selectedClass);
+            if (!classData || !classData.students || classData.students.length === 0) {
+                alert('No students found in selected class');
+                return;
+            }
+            
+            document.getElementById('voiceInterface').style.display = 'block';
+            document.getElementById('manualOverrideInterface').style.display = 'block';
+            
+            // Load existing attendance if any
+            const date = document.getElementById('attendanceDate').value;
+            const existingRecord = appData.attendanceRecords.find(
+                r => r.classId === selectedClass && r.date === date
+            );
+            
+            const html = classData.students.map(student => `
+                <div class="student-row" data-roll-no="${student.rollNo}">
+                    <div>
+                        <strong>Roll No: ${student.rollNo}</strong> - ${student.name}
+                    </div>
+                    <div class="attendance-toggle">
+                        <span>Absent</span>
+                        <label class="toggle-switch">
+                            <input type="checkbox" data-student-toggle="${student.rollNo}" 
+                                   ${existingRecord && existingRecord.attendance[student.rollNo] ? 'checked' : ''}
+                                   onchange="updateAttendanceToggle('${student.rollNo}', this.checked)">
+                            <span class="toggle-slider"></span>
+                        </label>
+                        <span>Present</span>
+                    </div>
+                </div>
+            `).join('');
+            
+            document.getElementById('studentsList').innerHTML = html;
+            
+            // Initialize attendance data from existing record or default to false
+            attendanceData = {};
+            classData.students.forEach(student => {
+                attendanceData[student.rollNo] = existingRecord ? 
+                    (existingRecord.attendance[student.rollNo] || false) : false;
+            });
+        }
+
+        function updateAttendanceToggle(rollNo, present) {
+            attendanceData[rollNo] = present;
+        }
+
+        // Records and Statistics
+        function loadAttendanceRecords() {
+            const classId = document.getElementById('recordsClassSelect').value;
+            const fromDate = document.getElementById('recordsFromDate').value;
+            const toDate = document.getElementById('recordsToDate').value;
+            
+            if (!classId) {
+                document.getElementById('attendanceRecordsDisplay').innerHTML = '<p>Select a class to view records</p>';
+                return;
+            }
+            
+            const classData = appData.classes.find(c => c.id === classId);
+            if (!classData) {
+                document.getElementById('attendanceRecordsDisplay').innerHTML = '<p>Class not found</p>';
+                return;
+            }
+            
+            let records = appData.attendanceRecords.filter(r => r.classId === classId);
+            
+            if (fromDate && toDate) {
+                records = records.filter(r => r.date >= fromDate && r.date <= toDate);
+            }
+            
+            if (records.length === 0) {
+                document.getElementById('attendanceRecordsDisplay').innerHTML = '<p>No attendance records found for the selected criteria</p>';
+                return;
+            }
+            
+            const html = `
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>Date</th>
+                            <th>Total Present</th>
+                            <th>Total Absent</th>
+                            <th>Attendance Rate</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        ${records.map(record => {
+                            const presentCount = Object.values(record.attendance).filter(p => p).length;
+                            const totalCount = Object.keys(record.attendance).length;
+                            const rate = totalCount > 0 ? ((presentCount / totalCount) * 100).toFixed(1) : '0';
+                            
+                            return `
+                                <tr>
+                                    <td>${record.date}</td>
+                                    <td>${presentCount}</td>
+                                    <td>${totalCount - presentCount}</td>
+                                    <td>${rate}%</td>
+                                    <td>
+                                        <button class="btn btn--sm btn--outline" onclick="viewRecordDetails('${record.classId}', '${record.date}')">View Details</button>
+                                        <button class="btn btn--sm btn--outline" onclick="editRecord('${record.classId}', '${record.date}')">Edit</button>
+                                    </td>
+                                </tr>
+                            `;
+                        }).join('')}
+                    </tbody>
+                </table>
+            `;
+            
+            document.getElementById('attendanceRecordsDisplay').innerHTML = html;
+        }
+
+        function viewRecordDetails(classId, date) {
+            const record = appData.attendanceRecords.find(r => r.classId === classId && r.date === date);
+            const classData = appData.classes.find(c => c.id === classId);
+            
+            if (!record || !classData) {
+                alert('Record not found');
+                return;
+            }
+            
+            const details = classData.students.map(student => {
+                const present = record.attendance[student.rollNo];
+                return `${student.rollNo} - ${student.name}: ${present ? 'Present' : 'Absent'}`;
+            }).join('\n');
+            
+            alert(`Attendance Details for ${date}\n${classData.name}\n\n${details}`);
+        }
+
+        function editRecord(classId, date) {
+            // Switch to attendance tab and load the record for editing
+            document.querySelector('[data-tab="attendance"]').click();
+            document.getElementById('attendanceClassSelect').value = classId;
+            document.getElementById('attendanceDate').value = date;
+            loadStudentsForAttendance();
+        }
+
+        function generateStatistics() {
+            const classId = document.getElementById('statisticsClassSelect').value;
+            if (!classId) {
+                document.getElementById('statisticsDisplay').innerHTML = '<p>Select a class to view statistics</p>';
+                return;
+            }
+            
+            const classData = appData.classes.find(c => c.id === classId);
+            if (!classData) {
+                document.getElementById('statisticsDisplay').innerHTML = '<p>Class not found</p>';
+                return;
+            }
+            
+            const records = appData.attendanceRecords.filter(r => r.classId === classId);
+            const totalClasses = records.length;
+            
+            if (totalClasses === 0) {
+                document.getElementById('statisticsDisplay').innerHTML = '<p>No attendance records found for this class</p>';
+                return;
+            }
+            
+            const statistics = classData.students.map(student => {
+                const attendedClasses = records.filter(r => r.attendance[student.rollNo]).length;
+                const percentage = totalClasses > 0 ? (attendedClasses / totalClasses) * 100 : 0;
+                
+                let marks = 0;
+                if (percentage >= 90) marks = 5;
+                else if (percentage >= 80) marks = 4;
+                else if (percentage >= 70) marks = 3;
+                else if (percentage >= 60) marks = 2;
+                else if (percentage >= 50) marks = 1;
+                
+                let rowClass = '';
+                if (percentage >= 90) rowClass = 'attendance-row-excellent';
+                else if (percentage >= 75) rowClass = 'attendance-row-good';
+                else if (percentage >= 60) rowClass = 'attendance-row-average';
+                else rowClass = 'attendance-row-poor';
+                
+                return {
+                    student,
+                    attendedClasses,
+                    totalClasses,
+                    percentage: percentage.toFixed(2),
+                    marks,
+                    rowClass
+                };
+            });
+            
+            statistics.sort((a, b) => b.percentage - a.percentage);
+            
+            const html = `
+                <div class="mb-16">
+                    <h4>Class: ${classData.name}</h4>
+                    <p>Total Classes Conducted: ${totalClasses}</p>
+                </div>
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>Roll No</th>
+                            <th>Student Name</th>
+                            <th>Classes Attended</th>
+                            <th>Attendance %</th>
+                            <th>Marks</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        ${statistics.map(stat => `
+                            <tr class="${stat.rowClass}">
+                                <td>${stat.student.rollNo}</td>
+                                <td>${stat.student.name}</td>
+                                <td>${stat.attendedClasses} out of ${stat.totalClasses}</td>
+                                <td>${stat.percentage}%</td>
+                                <td>${stat.marks}</td>
+                            </tr>
+                        `).join('')}
+                    </tbody>
+                </table>
+                <div class="mt-16">
+                    <h5>Marking Criteria:</h5>
+                    <ul>
+                        <li>90%+ attendance: 5 marks</li>
+                        <li>80-89% attendance: 4 marks</li>
+                        <li>70-79% attendance: 3 marks</li>
+                        <li>60-69% attendance: 2 marks</li>
+                        <li>50-59% attendance: 1 mark</li>
+                        <li>Below 50% attendance: 0 marks</li>
+                    </ul>
+                </div>
+            `;
+            
+            document.getElementById('statisticsDisplay').innerHTML = html;
+        }
+
+        // Helper Functions
+        function updateClassSelectors() {
+            const selectors = [
+                'importClassSelect',
+                'timetableClassSelect', 
+                'attendanceClassSelect',
+                'recordsClassSelect',
+                'statisticsClassSelect'
+            ];
+            
+            selectors.forEach(selectorId => {
+                const selector = document.getElementById(selectorId);
+                const currentValue = selector.value;
+                
+                selector.innerHTML = '<option value="">Select a class</option>' +
+                    appData.classes.map(classData => 
+                        `<option value="${classData.id}">${classData.name}</option>`
+                    ).join('');
+                
+                // Restore previous selection if still valid
+                if (currentValue && appData.classes.find(c => c.id === currentValue)) {
+                    selector.value = currentValue;
+                }
+            });
+        }
+
+        function updateDashboard() {
+            // Update statistics
+            document.getElementById('totalClasses').textContent = appData.classes.length;
+            
+            const totalStudents = appData.classes.reduce((sum, cls) => sum + cls.students.length, 0);
+            document.getElementById('totalStudents').textContent = totalStudents;
+            
+            // Calculate average attendance
+            const totalRecords = appData.attendanceRecords.length;
+            if (totalRecords > 0) {
+                const totalAttendanceRate = appData.attendanceRecords.reduce((sum, record) => {
+                    const present = Object.values(record.attendance).filter(p => p).length;
+                    const total = Object.keys(record.attendance).length;
+                    return sum + (total > 0 ? (present / total) * 100 : 0);
+                }, 0);
+                document.getElementById('avgAttendance').textContent = 
+                    (totalAttendanceRate / totalRecords).toFixed(1) + '%';
+            } else {
+                document.getElementById('avgAttendance').textContent = '0%';
+            }
+            
+            // Today's classes
+            const today = new Date().toLocaleDateString('en-US', { weekday: 'long' });
+            const todayClasses = appData.timetable.filter(entry => entry.day === today).length;
+            document.getElementById('todayClasses').textContent = todayClasses;
+            
+            // Update current class indicator
+            updateCurrentClassIndicator();
+        }
+
+        function updateCurrentClassIndicator() {
+            const now = new Date();
+            const currentDay = now.toLocaleDateString('en-US', { weekday: 'long' });
+            const currentTime = now.toTimeString().slice(0, 5);
+            
+            const currentClass = appData.timetable.find(entry => {
+                if (entry.day !== currentDay) return false;
+                
+                const startTimeWithBuffer = subtractMinutes(entry.startTime, 10);
+                const endTimeWithBuffer = addMinutes(entry.endTime, 10);
+                
+                return currentTime >= startTimeWithBuffer && currentTime <= endTimeWithBuffer;
+            });
+            
+            const indicator = document.getElementById('currentClassIndicator');
+            const info = document.getElementById('currentClassInfo');
+            
+            if (currentClass) {
+                const classData = appData.classes.find(c => c.id === currentClass.classId);
+                indicator.style.display = 'block';
+                info.innerHTML = `
+                    <strong>${classData ? classData.name : 'Unknown Class'}</strong><br>
+                    Time: ${currentClass.startTime} - ${currentClass.endTime}<br>
+                    <button class="btn btn--sm btn--primary mt-8" onclick="quickStartAttendance('${currentClass.classId}')">Take Attendance</button>
+                `;
+            } else {
+                indicator.style.display = 'block';
+                info.textContent = 'No class scheduled at this time';
+            }
+        }
+
+        function quickStartAttendance(classId) {
+            // Switch to attendance tab and pre-select the class
+            document.querySelector('[data-tab="attendance"]').click();
+            document.getElementById('attendanceClassSelect').value = classId;
+            loadStudentsForAttendance();
+        }
+
+        // Initialize the application when the page loads
+        document.addEventListener('DOMContentLoaded', init);
+    </script>
+</body>
+</html>
